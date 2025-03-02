@@ -99,7 +99,7 @@ export default async function Home({
 }) {
   const tickers = isMarketOpen() ? tickerAfterOpen : tickersFutures
 
-  const ticker = searchParams?.ticker || tickers[0].symbol
+  const ticker = searchParams?.ticker || "BTC-USD"
   const range = validateRange(searchParams?.range || DEFAULT_RANGE)
   const interval = validateInterval(
     range,
