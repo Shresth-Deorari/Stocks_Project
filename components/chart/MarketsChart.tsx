@@ -26,7 +26,8 @@ export default async function MarketsChart({
     );
   }
 
-  const stockQuotes = chart.quotes
+  // Handle case where chart is null or has no quotes
+  const stockQuotes = chart && chart.quotes
     ? chart.quotes
         .map((quote) => ({
           date: quote.date,
@@ -44,7 +45,7 @@ export default async function MarketsChart({
           currency: quote.currency,
         })}
       </div>
-      {chart.quotes.length > 0 ? (
+      {stockQuotes.length > 0 ? (
         <AreaClosedChart chartQuotes={stockQuotes} range={range} />
       ) : (
         <div className="flex h-full items-center justify-center text-center text-neutral-500">
