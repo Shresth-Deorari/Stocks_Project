@@ -1,14 +1,14 @@
-import { cn } from "@/lib/utils"
-import { fetchChartData } from "@/lib/yahoo-finance/fetchChartData"
-import type { Interval, Range } from "@/types/yahoo-finance"
-import AreaClosedChart from "./AreaClosedChart"
-import yahooFinance from "yahoo-finance2"
-import { fetchQuote } from "@/lib/yahoo-finance/fetchQuote"
+import { cn } from "@/lib/utils";
+import { fetchChartData } from "@/lib/yahoo-finance/fetchChartData";
+import type { Interval, Range } from "@/types/yahoo-finance";
+import AreaClosedChart from "./AreaClosedChart";
+import yahooFinance from "yahoo-finance2";
+import { fetchQuote } from "@/lib/yahoo-finance/fetchQuote";
 
 interface StockGraphProps {
-  ticker: string
-  range: Range
-  interval: Interval
+  ticker: string;
+  range: Range;
+  interval: Interval;
 }
 
 const rangeTextMapping = {
@@ -17,11 +17,11 @@ const rangeTextMapping = {
   "1m": "Past Month",
   "3m": "Past 3 Months",
   "1y": "Past Year",
-}
+};
 
 function calculatePriceChange(qouteClose: number, currentPrice: number) {
-  const firstItemPrice = qouteClose || 0
-  return ((currentPrice - firstItemPrice) / firstItemPrice) * 100
+  const firstItemPrice = qouteClose || 0;
+  return ((currentPrice - firstItemPrice) / firstItemPrice) * 100;
 }
 
 export default async function StockChart({
@@ -29,37 +29,46 @@ export default async function StockChart({
   range,
   interval,
 }: StockGraphProps) {
-  const chartData = await fetchChartData(ticker, range, interval)
-  const quoteData = await fetchQuote(ticker)
+  const chartData = await fetchChartData(ticker, range, interval);
+  const quoteData = await fetchQuote(ticker);
 
-  const [chart, quote] = await Promise.all([chartData, quoteData])
+  const [chart, quote] = await Promise.all([chartData, quoteData]);
+
+  // If quote is null, return an error message or fallback UI
+  if (!quote) {
+    return (
+      <div className="h-[27.5rem] w-full flex items-center justify-center text-center text-neutral-500">
+        Unable to fetch quote data for {ticker}
+      </div>
+    );
+  }
 
   const priceChange =
     chart.quotes.length &&
     calculatePriceChange(
       Number(chart.quotes[0].close),
       Number(chart.meta.regularMarketPrice)
-    )
+    );
 
   const ChartQuotes = chart.quotes
     .map((quote) => ({
       date: quote.date,
       close: quote.close?.toFixed(2),
     }))
-    .filter((quote) => quote.close !== undefined && quote.date !== null)
+    .filter((quote) => quote.close !== undefined && quote.date !== null);
 
   return (
     <div className="h-[27.5rem] w-full">
       <div>
         <div className="space-x-1 text-muted-foreground">
-          <span className="font-bold text-primary">{quoteData.symbol}</span>
+          <span className="font-bold text-primary">{quote.symbol}</span>
           <span>·</span>
           <span>
-            {quoteData.fullExchangeName === "NasdaqGS"
+            {quote.fullExchangeName === "NasdaqGS"
               ? "NASDAQ"
-              : quoteData.fullExchangeName}
+              : quote.fullExchangeName}
           </span>
-          <span>{quoteData.shortName}</span>
+          <span>{quote.shortName}</span>
         </div>
 
         <div className="flex flex-row items-end justify-between">
@@ -87,7 +96,7 @@ export default async function StockChart({
               </span>
             </span>
             <span className="inline space-x-1 font-semibold text-muted-foreground">
-              {quote.hasPrePostMarketData && quote.postMarketPrice && (
+              {quote.postMarketPrice && (
                 <>
                   <span>·</span>
                   <span>
@@ -112,7 +121,7 @@ export default async function StockChart({
                   </span>
                 </>
               )}
-              {quote.hasPrePostMarketData && quote.preMarketPrice && (
+              {quote.preMarketPrice && (
                 <>
                   <span>·</span>
                   <span>
@@ -168,5 +177,5 @@ export default async function StockChart({
         <AreaClosedChart chartQuotes={ChartQuotes} range={range} />
       )}
     </div>
-  )
+  );
 }

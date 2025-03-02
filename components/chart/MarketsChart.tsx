@@ -1,21 +1,30 @@
-import { fetchChartData } from "@/lib/yahoo-finance/fetchChartData"
-import { Interval, Range } from "@/types/yahoo-finance"
-import AreaClosedChart from "./AreaClosedChart"
-import { fetchQuote } from "@/lib/yahoo-finance/fetchQuote"
+import { fetchChartData } from "@/lib/yahoo-finance/fetchChartData";
+import { Interval, Range } from "@/types/yahoo-finance";
+import AreaClosedChart from "./AreaClosedChart";
+import { fetchQuote } from "@/lib/yahoo-finance/fetchQuote";
 
 export default async function MarketsChart({
   ticker,
   range,
   interval,
 }: {
-  ticker: string
-  range: Range
-  interval: Interval
+  ticker: string;
+  range: Range;
+  interval: Interval;
 }) {
-  const chartData = await fetchChartData(ticker, range, interval)
-  const quoteData = await fetchQuote(ticker)
+  const chartData = await fetchChartData(ticker, range, interval);
+  const quoteData = await fetchQuote(ticker);
 
-  const [chart, quote] = await Promise.all([chartData, quoteData])
+  const [chart, quote] = await Promise.all([chartData, quoteData]);
+
+  // If quote is null, return a fallback UI
+  if (!quote) {
+    return (
+      <div className="flex h-full items-center justify-center text-center text-neutral-500">
+        Unable to fetch quote data for {ticker}
+      </div>
+    );
+  }
 
   const stockQuotes = chart.quotes
     ? chart.quotes
@@ -24,7 +33,7 @@ export default async function MarketsChart({
           close: quote.close?.toFixed(2),
         }))
         .filter((quote) => quote.close !== undefined && quote.date !== null)
-    : []
+    : [];
 
   return (
     <>
@@ -43,5 +52,5 @@ export default async function MarketsChart({
         </div>
       )}
     </>
-  )
+  );
 }
