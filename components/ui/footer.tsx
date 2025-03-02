@@ -15,9 +15,9 @@ export default function Footer() {
             rel="noreferrer"
             className="font-medium underline underline-offset-4"
           >
-            Darius Lukasukas
+            Shresth Deorari
           </Link>
-          . The source code is available on{" "}
+          . Here is my{" "}
           <Link
             prefetch={false}
             href="https://github.com/Shresth-Deorari"
